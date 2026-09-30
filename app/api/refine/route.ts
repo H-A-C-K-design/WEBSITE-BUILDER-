@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   // ── Load user ─────────────────────────────────────────────────────────────
   const userRef = db.collection("users").doc(uid);
   const userSnap = await userRef.get();
-  if (!userSnap.exists()) {
+  if (!userSnap.exists) {
     return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
   }
   const currentCredits: number = userSnap.data()?.credits ?? 0;
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
   // ── Verify project ownership ──────────────────────────────────────────────
   const projectRef = db.collection("projects").doc(body.projectId);
   const projectSnap = await projectRef.get();
-  if (!projectSnap.exists() || projectSnap.data()?.ownerId !== uid) {
+  if (!projectSnap.exists || projectSnap.data()?.ownerId !== uid) {
     return NextResponse.json({ ok: false, error: "Project not found" }, { status: 404 });
   }
   const project = projectSnap.data()!;

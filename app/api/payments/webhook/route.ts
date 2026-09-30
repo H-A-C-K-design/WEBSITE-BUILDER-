@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
   const paymentRef = db.collection("payments").doc(orderId);
   const paymentSnap = await paymentRef.get();
 
-  if (!paymentSnap.exists()) {
+  if (!paymentSnap.exists) {
     return NextResponse.json({ ok: true, message: "Order not found — skipped" });
   }
 

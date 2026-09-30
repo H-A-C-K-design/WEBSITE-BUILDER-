@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
   const userRef = db.collection("users").doc(uid);
   const userSnap = await userRef.get();
 
-  if (!userSnap.exists()) {
+  if (!userSnap.exists) {
     return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
   }
 

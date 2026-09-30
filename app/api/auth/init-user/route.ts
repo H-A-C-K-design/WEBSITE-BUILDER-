@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
     const userRef = db.collection("users").doc(uid);
     const snap = await userRef.get();
 
-    if (snap.exists()) {
+    if (snap.exists) {
       // User already exists — just update display info if needed
       await userRef.update({
         updatedAt: FieldValue.serverTimestamp(),

@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
   const paymentRef = db.collection("payments").doc(body.razorpayOrderId);
   const paymentSnap = await paymentRef.get();
 
-  if (!paymentSnap.exists()) {
+  if (!paymentSnap.exists) {
     return NextResponse.json({ ok: false, error: "Payment not found" }, { status: 404 });
   }
 

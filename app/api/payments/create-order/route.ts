@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
   // Determine amount in paise
   let amountPaise: number | undefined;
-  let description: string;
+  let description: string = "";
 
   // Check plans
   const planEntry = Object.values(PLANS).find(

@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
   // ── Load user ─────────────────────────────────────────────────────────────
   const userRef = db.collection("users").doc(uid);
   const userSnap = await userRef.get();
-  if (!userSnap.exists()) {
+  if (!userSnap.exists) {
     return NextResponse.json({ ok: false, error: "User not found" }, { status: 404 });
   }
   const userData = userSnap.data()!;
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
   const projectRef = db.collection("projects").doc(projectId);
   const projectSnap = await projectRef.get();
 
-  if (!projectSnap.exists() || projectSnap.data()?.ownerId !== uid) {
+  if (!projectSnap.exists || projectSnap.data()?.ownerId !== uid) {
     return NextResponse.json({ ok: false, error: "Project not found" }, { status: 404 });
   }
 
@@ -86,7 +86,7 @@ export async function GET(req: NextRequest) {
     .replace(/-+/g, "-")
     .slice(0, 60);
 
-  return new NextResponse(zipBuffer, {
+  return new NextResponse(new Uint8Array(zipBuffer), {
     headers: {
       "Content-Type": "application/zip",
       "Content-Disposition": `attachment; filename="${safeName}.zip"`,
