@@ -1,0 +1,58 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Users ──────────────────────────────────────────────────────────────
+    match /users/{uid} {
+      // Only the user can read their own document
+      allow read: if request.auth != null && request.auth.uid == uid;
+
+      // Clients can NEVER write credits, plan, or planExpiresAt
+      allow write: if false; // All writes via Admin SDK (server-side only)
+    }
+
+    // ── Projects ────────────────────────────────────────────────────────────
+    match /projects/{projectId} {
+      allow read: if request.auth != null &&
+        request.auth.uid == resource.data.ownerId;
+
+      // Only the owner can write, and cannot forge ownerId
+      allow create: if request.auth != null &&
+        request.resource.data.ownerId == request.auth.uid &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() <= 120;
+
+      allow update: if request.auth != null &&
+        request.auth.uid == resource.data.ownerId;
+
+      allow delete: if request.auth != null &&
+        request.auth.uid == resource.data.ownerId;
+
+      // Versions subcollection
+      match /versions/{versionId} {
+        allow read: if request.auth != null &&
+          request.auth.uid == get(/databases/$(database)/documents/projects/$(projectId)).data.ownerId;
+        allow write: if false; // Server-side only
+      }
+    }
+
+    // ── Credit ledger ────────────────────────────────────────────────────────
+    match /creditLedger/{entryId} {
+      allow read: if request.auth != null &&
+        request.auth.uid == resource.data.uid;
+      allow write: if false; // Server-side only
+    }
+
+    // ── Payments ─────────────────────────────────────────────────────────────
+    match /payments/{paymentId} {
+      allow read: if request.auth != null &&
+        request.auth.uid == resource.data.uid;
+      allow write: if false; // Server-side only
+    }
+
+    // Deny all other reads/writes
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
