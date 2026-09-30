@@ -43,7 +43,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
       "auth/weak-password": "Choose a password with at least 6 characters.",
       "auth/invalid-email": "That doesn't look like a valid email address.",
       "auth/popup-closed-by-user": "Sign-in window closed. Try again.",
+      "auth/popup-blocked": "Popup was blocked by your browser. Allow popups for this site and try again.",
+      "auth/cancelled-popup-request": "Sign-in cancelled. Try again.",
       "auth/network-request-failed": "Network error. Check your connection.",
+      "auth/internal-error": "An internal error occurred. Try again.",
+      "auth/unauthorized-domain": "This domain is not authorised for Google sign-in. Add it in the Firebase Console under Authentication → Settings → Authorised domains.",
     };
     return map[code] ?? "Something went wrong. Try again.";
   }
@@ -100,7 +104,8 @@ export default function AuthForm({ mode }: AuthFormProps) {
       const provider = new GoogleAuthProvider();
       const cred = await signInWithPopup(auth, provider);
       const token = await cred.user.getIdToken();
-      await fetch("/api/auth/init-user", {
+      // Best-effort: initialise user doc / grant credits. Don't block redirect.
+      fetch("/api/auth/init-user", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
@@ -110,7 +115,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           displayName: cred.user.displayName,
           plan: planParam,
         }),
-      });
+      }).catch(() => {/* non-critical */});
       const pendingPrompt = sessionStorage.getItem("pending_prompt");
       router.push(pendingPrompt ? `/builder?prompt=${encodeURIComponent(pendingPrompt)}` : "/dashboard");
     } catch (err: unknown) {
